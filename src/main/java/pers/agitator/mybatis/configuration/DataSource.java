@@ -1,9 +1,15 @@
-package pers.agitator.mybatis;
+package pers.agitator.mybatis.configuration;
+
+import pers.agitator.mybatis.annotation.NotBlank;
 
 public class DataSource {
+    @NotBlank
     private String driverClassName;
+    @NotBlank
     private String url;
+    @NotBlank
     private String username;
+    @NotBlank
     private String password;
 
     public String getDriverClassName() {

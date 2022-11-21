@@ -2,9 +2,12 @@ package pers.agitator.mybatis.util;
 
 import org.dom4j.Attribute;
 import org.dom4j.Element;
+import pers.agitator.mybatis.annotation.NotBlank;
 import pers.agitator.mybatis.constant.XmlConstant;
+import pers.agitator.mybatis.exception.XmlParseException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
@@ -18,38 +21,44 @@ public class XmlUtil {
      * @param <T>     clazz
      * @return clazz
      */
-    public static <T> T coverElementPropertyToObject(Element element, Class<T> clazz) throws InstantiationException, IllegalAccessException {
+    public static <T> T coverElementPropertyToObject(Element element, Class<T> clazz) {
         List<Element> elements = element.elements(XmlConstant.PROPERTY);
-        if (Objects.isNull(elements) || elements.size() == 0) {
-            return clazz.newInstance();
-        }
-        for (Element propertyElement : elements) {
-            Attribute nameAttribute = propertyElement.attribute(XmlConstant.PROPERTY_NAME);
-            Attribute valueAttribute = propertyElement.attribute(XmlConstant.PROPERTY_VALUE);
-            String fieldName = nameAttribute.getValue();
-            if (StrUtil.isBlank(fieldName)) {
-                throw new RuntimeException("the attribute '" + XmlConstant.PROPERTY_NAME + "' of element <" + XmlConstant.PROPERTY + "> not be blank,path:[" + nameAttribute.getPath() + "]");
+        try {
+            T instance = clazz.newInstance();
+            if (Objects.isNull(elements) || elements.size() == 0) {
+                return instance;
             }
-            String setterMethodName = getSetterMethodName(fieldName);
-
-            try {
-                Field declaredField = clazz.getDeclaredField(fieldName);
-                Method method = clazz.getDeclaredMethod(setterMethodName, declaredField.getType());
-
-                if (Number.class.isAssignableFrom(declaredField.getType())) {
-                    // 处理数字类型
-
-                } else {
-                    // 处理字符串类型
-
+            for (Element propertyElement : elements) {
+                Attribute nameAttribute = propertyElement.attribute(XmlConstant.PROPERTY_NAME);
+                String value = propertyElement.getStringValue();
+                String fieldName = nameAttribute.getValue();
+                if (StrUtil.isBlank(fieldName)) {
+                    throw new XmlParseException("the attribute '{}' of element <{}> not be blank,path:[{}]", XmlConstant.PROPERTY_NAME, XmlConstant.PROPERTY, nameAttribute.getPath());
                 }
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
+                String setterMethodName = getSetterMethodName(fieldName);
+
+                try {
+                    Field declaredField = clazz.getDeclaredField(fieldName);
+                    Method method = clazz.getDeclaredMethod(setterMethodName, declaredField.getType());
+                    NotBlank notBlank = declaredField.getAnnotation(NotBlank.class);
+                    if (notBlank != null && StrUtil.isBlank(value)) {
+                        throw new XmlParseException("field [()] require not blank", fieldName);
+                    }
+                    if (!declaredField.getType().equals(String.class)) {
+                        throw new XmlParseException("only support type string while parse xml to object,case:[class:{} field:{}]", clazz.getSimpleName(), declaredField.getName());
+                    }
+                    method.invoke(instance, value);
+                } catch (NoSuchMethodException e) {
+                    throw new XmlParseException("setter of field can not be found", e);
+                } catch (NoSuchFieldException ignore) {
+                } catch (InvocationTargetException e) {
+                    throw new XmlParseException("error in invoke setter", e);
+                }
+
             }
-
-
+            return instance;
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new XmlParseException(e);
         }
     }
 
