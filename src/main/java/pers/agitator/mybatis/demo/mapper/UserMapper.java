@@ -7,5 +7,5 @@ import java.util.List;
 public interface UserMapper {
     List<User> selectAll();
 
-    List<User> selectByUsername(String username);
+    List<User> selectByUsername(User user);
 }

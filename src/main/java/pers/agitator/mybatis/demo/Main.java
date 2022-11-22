@@ -14,6 +14,10 @@ public class Main {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         List<User> list = sqlSession.selectList("pers.agitator.mybatis.demo.mapper.UserMapper.selectAll");
         System.out.println(list);
+        User user = new User();
+        user.setUsername("用户名");
+        List<User> list2 = sqlSession.selectList("pers.agitator.mybatis.demo.mapper.UserMapper.selectByUsername", user);
+        System.out.println(list2);
 
     }
 }
