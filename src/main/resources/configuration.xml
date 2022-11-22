@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
-    <property name="driverClassName">com.mysql.jdbc.Driver</property>
-    <property name="url">jdbc:mysql://localhost:3306/mybatis?serverTimezone=UTC&amp;characterEncoding=utf8&amp;useUnicode=true&amp;useSSL=false</property>
-    <property name="username">root</property>
-    <property name="password">root</property>
+    <dataSource>
+        <property name="driverClassName">com.mysql.cj.jdbc.Driver</property>
+        <property name="url">jdbc:mysql://localhost:3306/agitator?serverTimezone=UTC&amp;characterEncoding=utf8&amp;useUnicode=true&amp;useSSL=false</property>
+        <property name="username">root</property>
+        <property name="password">root</property>
+    </dataSource>
 
     <mapper resource="mapper/UserMapper.xml">
     </mapper>

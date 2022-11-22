@@ -11,8 +11,33 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 
 public class XmlUtil {
+    /**
+     * 将xml的element下的property 中按照 name  和 value 包装成 {@link java.util.Properties}
+     *
+     * @param element parent element of property
+     * @return Properties
+     */
+    public static Properties coverElementPropertyToProperties(Element element) {
+        List<Element> elements = element.elements(XmlConstant.PROPERTY);
+        Properties properties = new Properties();
+        if (Objects.isNull(elements) || elements.size() == 0) {
+            return properties;
+        }
+        for (Element propertyElement : elements) {
+            Attribute nameAttribute = propertyElement.attribute(XmlConstant.PROPERTY_NAME);
+            String value = propertyElement.getStringValue();
+            String fieldName = nameAttribute.getValue();
+            if (StrUtil.isBlank(fieldName)) {
+                throw new XmlParseException("the attribute '{}' of element <{}> not be blank,path:[{}]", XmlConstant.PROPERTY_NAME, XmlConstant.PROPERTY, nameAttribute.getPath());
+            }
+            properties.setProperty(fieldName, value);
+        }
+        return properties;
+    }
+
     /**
      * 将xml的element下的property 中按照 name  和 value 包装到对象 clazz 中
      *

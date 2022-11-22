@@ -1,4 +1,4 @@
-package pers.agitator.mybatis.configuration;
+package pers.agitator.mybatis.builder;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -7,6 +7,7 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import pers.agitator.mybatis.config.MapperBean;
 import pers.agitator.mybatis.constant.XmlConstant;
+import pers.agitator.mybatis.session.Configuration;
 import pers.agitator.mybatis.util.StrUtil;
 
 import java.io.InputStream;
@@ -19,7 +20,7 @@ public class XmlMapperBuilder {
         this.configuration = configuration;
     }
 
-    public Configuration loadXmlMapper(InputStream in) throws DocumentException, ClassNotFoundException {
+    public void loadXmlMapper(InputStream in) throws DocumentException, ClassNotFoundException {
         Document document = new SAXReader().read(in);
 
         Element rootElement = document.getRootElement();
@@ -27,7 +28,6 @@ public class XmlMapperBuilder {
 
         parseSelectElement(rootElement, namespace);
 
-        return configuration;
     }
 
     private void parseSelectElement(Element rootElement, String namespace) throws ClassNotFoundException {

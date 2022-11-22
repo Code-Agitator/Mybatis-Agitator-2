@@ -1,8 +1,8 @@
-package pers.agitator.mybatis.configuration;
+package pers.agitator.mybatis.session;
 
 import pers.agitator.mybatis.annotation.NotBlank;
 
-public class DataSource {
+public class DataSourceProperties {
     @NotBlank
     private String driverClassName;
     @NotBlank
