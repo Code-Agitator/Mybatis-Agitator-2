@@ -10,7 +10,6 @@ import pers.agitator.mybatis.util.ReflectUtil;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.*;
@@ -25,7 +24,7 @@ public class SimpleExecutor implements Executor {
     }
 
     @Override
-    public <E> List<E> queryList(MapperBean mapper, Object... params) {
+    public <E> List<E> query(MapperBean mapper, Object... params) {
         try {
             Connection connection = configuration.getDataSource().getConnection();
             BoundSql boundSql = getBoundSql(mapper);

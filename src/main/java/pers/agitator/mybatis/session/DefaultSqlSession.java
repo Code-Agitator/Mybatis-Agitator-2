@@ -24,7 +24,7 @@ public class DefaultSqlSession implements SqlSession {
     @Override
     public <E> List<E> selectList(String statementId, Object... params) {
         MapperBean mapperBean = configuration.getMapperMap().get(statementId);
-        return executor.queryList(mapperBean, params);
+        return executor.query(mapperBean, params);
     }
 
     @Override

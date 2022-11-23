@@ -20,14 +20,14 @@ public class XmlMapperBuilder {
         this.configuration = configuration;
     }
 
-    public void loadXmlMapper(InputStream in) throws DocumentException, ClassNotFoundException {
+    public void parse(InputStream in) throws DocumentException, ClassNotFoundException {
         Document document = new SAXReader().read(in);
 
         Element rootElement = document.getRootElement();
         String namespace = rootElement.attributeValue("namespace");
-
+        // 解析 select 标签
         parseSelectElement(rootElement, namespace);
-
+        // 其他1.0先不搞
     }
 
     private void parseSelectElement(Element rootElement, String namespace) throws ClassNotFoundException {

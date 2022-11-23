@@ -1,0 +1,22 @@
+@startuml
+
+autonumber
+
+you -> SqlSessionFactoryBuilder :new(ClassPath)
+SqlSessionFactoryBuilder -> XmlConfigurationBuilder:parse()
+XmlConfigurationBuilder -> SqlSessionFactoryBuilder:Configuration
+SqlSessionFactoryBuilder -> you:SqlSessionFactoryBuilder
+you -> SqlSessionFactoryBuilder:build()
+SqlSessionFactoryBuilder->SqlSessionFactory:new()
+SqlSessionFactory ->SqlSessionFactoryBuilder:SqlSessionFactory
+SqlSessionFactoryBuilder ->you:SqlSessionFactory
+you ->SqlSessionFactory:openSession()
+SqlSessionFactory -> SqlSession:new()
+SqlSession ->SqlSessionFactory:SqlSession
+SqlSessionFactory -> you:SqlSession
+you->SqlSession:query()
+SqlSession->Executor:query()
+Executor->SqlSession:ResultSet
+SqlSession ->you:Result
+@enduml
+

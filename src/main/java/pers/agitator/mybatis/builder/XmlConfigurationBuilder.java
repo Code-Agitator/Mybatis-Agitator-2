@@ -2,7 +2,6 @@ package pers.agitator.mybatis.builder;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
@@ -20,10 +19,19 @@ import java.util.Properties;
 
 public class XmlConfigurationBuilder {
     private Configuration configuration;
+    private final InputStream in;
 
+    public XmlConfigurationBuilder(InputStream in) {
+        newConfig();
+        this.in = in;
 
-    public Configuration loadXmlConfiguration(InputStream in) {
+    }
+
+    private void newConfig() {
         this.configuration = new Configuration();
+    }
+
+    public Configuration parse() {
         try {
             SAXReader reader = new SAXReader();
             Document document = reader.read(in);
@@ -40,11 +48,11 @@ public class XmlConfigurationBuilder {
 
             // 加载mapper
             List<Node> nodes = root.selectNodes("//mapper");
+            XmlMapperBuilder xmlMapperBuilder = new XmlMapperBuilder(configuration);
             for (Node node : nodes) {
                 Element mapperElement = (Element) node;
                 String mapperResource = mapperElement.attributeValue(XmlConstant.RESOURCE);
-                XmlMapperBuilder xmlMapperBuilder = new XmlMapperBuilder(configuration);
-                xmlMapperBuilder.loadXmlMapper(ResourceUtil.getResources(mapperResource));
+                xmlMapperBuilder.parse(ResourceUtil.getResources(mapperResource));
             }
             return configuration;
         } catch (Exception e) {

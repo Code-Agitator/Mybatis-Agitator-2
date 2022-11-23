@@ -6,7 +6,5 @@
         <property name="username">root</property>
         <property name="password">root</property>
     </dataSource>
-
-    <mapper resource="mapper/UserMapper.xml">
-    </mapper>
+    <mapper resource="mapper/UserMapper.xml"/>
 </configuration>
