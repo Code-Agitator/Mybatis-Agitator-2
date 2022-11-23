@@ -5,4 +5,6 @@ import java.util.List;
 
 public interface SqlSession extends Closeable {
     <E> List<E> selectList(String statementId, Object... params);
+
+    <E> E getMapper(Class<E> clazz);
 }

@@ -3,6 +3,7 @@ package pers.agitator.mybatis.session;
 import pers.agitator.mybatis.config.MapperBean;
 
 import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.util.List;
 
 public class DefaultSqlSession implements SqlSession {
@@ -24,5 +25,17 @@ public class DefaultSqlSession implements SqlSession {
     public <E> List<E> selectList(String statementId, Object... params) {
         MapperBean mapperBean = configuration.getMapperMap().get(statementId);
         return executor.queryList(mapperBean, params);
+    }
+
+    @Override
+    public <E> E getMapper(Class<E> clazz) {
+
+        Object proxyInstance = Proxy.newProxyInstance(DefaultSqlSession.class.getClassLoader(), new Class[]{clazz}, ((proxy, method, args) -> {
+            String methodName = method.getName();
+            String clazzName = method.getDeclaringClass().getName();
+            String statementId = clazzName + "." + methodName;
+            return selectList(statementId, args);
+        }));
+        return (E) proxyInstance;
     }
 }
