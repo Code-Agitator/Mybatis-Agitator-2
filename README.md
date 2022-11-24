@@ -391,7 +391,10 @@ public interface Executor {
 ### SimpleExecutor的过程就相对比较复杂繁多，让我们一个一个说
 
 1. getBoundSql涉及了GenericTokenParser(将参数通过自定义的前缀后缀解析例如前缀#{和后缀})
-
+2. GenericTokenParser做的呢就是吧#{username}读取出来并排除转义字符'\\'，然后由ParameterMappingTokenHandler替换为?再把username存起来
+3. 再把解析后的带?的sql以及参数存放到BoundSql
+4. 使用PreparedStatement执行sql
+5. handleResultSet将结果集映射为指定的ResultType
 
 ```java
 public class SimpleExecutor implements Executor {
@@ -456,6 +459,85 @@ public class SimpleExecutor implements Executor {
         GenericTokenParser genericTokenParser = new GenericTokenParser("#{", "}", parameterMappingTokenHandler);
         String parseSql = genericTokenParser.parse(sql);
         return new BoundSql(parseSql, parameterMappingTokenHandler.getParameterMappings());
+    }
+}
+```
+
+## 到这里我们就完成了我们的雏形，接下来demo一下
+
+```java
+public class User {
+    private Integer id;
+    private String username;
+    private String address;
+    // ... getter setter toString
+}
+
+public interface UserMapper {
+    List<User> selectAll();
+
+    List<User> selectByUsername(User user);
+}
+
+public class Main {
+    public static void main(String[] args) {
+        SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder("configuration.xml");
+        SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build();
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        List<User> list = sqlSession.selectList("pers.agitator.mybatis.demo.mapper.UserMapper.selectAll");
+        System.out.println(list);
+        User user = new User();
+        user.setUsername("用户名");
+        List<User> list2 = sqlSession.selectList("pers.agitator.mybatis.demo.mapper.UserMapper.selectByUsername", user);
+        System.out.println(list2);
+    }
+}
+```
+
+### 可以自行执行以下，这个时候我们看到我们是通过statementId去执行对应的sql，不够优雅，这个时候动态代理就派上用场了！
+
+1. 在SqlSession添加getMapper方法
+
+```java
+
+public interface SqlSession extends Closeable {
+    <E> E getMapper(Class<E> clazz);
+}
+
+```
+
+2. 实现getMapper方法，读接口生成代理类去生成对应的statementId进而调用select方法
+
+```java
+public class DefaultSqlSession implements SqlSession {
+
+    @Override
+    public <E> E getMapper(Class<E> clazz) {
+
+        Object proxyInstance = Proxy.newProxyInstance(DefaultSqlSession.class.getClassLoader(), new Class[]{clazz}, ((proxy, method, args) -> {
+            String methodName = method.getName();
+            String clazzName = method.getDeclaringClass().getName();
+            String statementId = clazzName + "." + methodName;
+            return selectList(statementId, args);
+        }));
+        return (E) proxyInstance;
+    }
+}
+```
+
+### demo一下
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder("configuration.xml");
+        SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build();
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        User user = new User();
+        user.setUsername("用户名");
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        System.out.println(mapper.selectAll());
+        System.out.println(mapper.selectByUsername(user));
     }
 }
 ```
