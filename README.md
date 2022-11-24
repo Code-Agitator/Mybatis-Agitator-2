@@ -17,8 +17,8 @@
 
 (做一个东西，最重要的就是明白自己要做个什么东西)
 
-1. 我们希望可以通过XML配置来配置我们的数据源，Mapper.xml路径
-2. 我们希望我们的配置可以去读取我们配置的Mapper.xml文件并且解析他
+1. 我们希望可以通过XML配置来配置我们的数据源，**Mapper.xml**路径
+2. 我们希望我们的配置可以去读取我们配置的**Mapper.xml**文件并且解析他
 3. 我们希望只通过调用接口方法即可完成查询
 
 # 开工
@@ -157,7 +157,7 @@ public class Configuration {
 }
 ```
 
-### 其中MapperBean是用于保存mapper中每一个方法的一些属性，比如id,resultType,paramType等
+### 其中**MapperBean**是用于保存**mapper**中每一个方法的一些属性，比如**id,resultType,paramType**等
 
 ```java
 public class MapperBean {
@@ -169,7 +169,7 @@ public class MapperBean {
 }
 ```
 
-## 开始解析xml配置文件生成Configuration类
+## 开始解析xml配置文件生成**Configuration**类
 
 ### XmlConfigurationBuilder
 
@@ -220,7 +220,7 @@ public class XmlConfigurationBuilder {
 }
 ```
 
-### 其中的XmlMapperBuilder就是吧*Mapper.xml解析成MapperBean并存在Configuration中的
+### 其中的*XmlMapperBuilder*就是吧*Mapper.xml*解析成*MapperBean*并存在*Configuration*中的
 
 ```java
 public class XmlMapperBuilder {
@@ -390,11 +390,11 @@ public interface Executor {
 
 ### SimpleExecutor的过程就相对比较复杂繁多，让我们一个一个说
 
-1. getBoundSql涉及了GenericTokenParser(将参数通过自定义的前缀后缀解析例如前缀#{和后缀})
-2. GenericTokenParser做的呢就是吧#{username}读取出来并排除转义字符'\\'，然后由ParameterMappingTokenHandler替换为?再把username存起来
-3. 再把解析后的带?的sql以及参数存放到BoundSql
-4. 使用PreparedStatement执行sql
-5. handleResultSet将结果集映射为指定的ResultType
+1. **getBoundSql**涉及了**GenericTokenParser**(将参数通过自定义的前缀后缀解析例如前缀#{和后缀})
+2. **GenericTokenParser**做的呢就是吧#{username}读取出来并排除转义字符'\\'，然后由ParameterMappingTokenHandler替换为?再把username存起来
+3. 再把解析后的带?的sql以及参数存放到**BoundSql**
+4. 使用**PreparedStatement**执行sql
+5. handleResultSet将结果集映射为指定的**ResultType**
 
 ```java
 public class SimpleExecutor implements Executor {
